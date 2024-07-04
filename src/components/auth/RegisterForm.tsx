@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useAuth } from '../AuthContext';
 
 const RegisterForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { register } = useAuth();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://8000/auth/register', { name, email, password });
-      console.log('User registered:', response.data);
+      await register(name, email, password);
     } catch (error) {
       console.error('Registration error:', error);
     }

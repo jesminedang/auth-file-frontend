@@ -5,18 +5,19 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Upload from './pages/Upload';
+import { AuthProvider } from './components/AuthContext';
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
+      <AuthProvider>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/upload" element={<Upload />} />
         </Routes>
-      </div>
+      </AuthProvider>
     </Router>
   );
 };

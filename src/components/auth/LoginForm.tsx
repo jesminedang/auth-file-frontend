@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://8000/auth/login', { email, password });
-      console.log('User logged in:', response.data);
-      // Stockez les tokens dans le sessionStorage ou le localStorage
-      sessionStorage.setItem('accessToken', response.data.backendTokens.accessToken);
-      sessionStorage.setItem('refreshToken', response.data.backendTokens.refreshToken);
-      navigate('/upload');
+      await login(email, password);
     } catch (error) {
       console.error('Login error:', error);
     }

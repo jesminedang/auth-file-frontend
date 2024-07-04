@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Backend_URL } from '../../constants';
+import { useAuth } from '../AuthContext';
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
+
+  const { logout } = useAuth();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -19,7 +23,7 @@ const UploadForm = () => {
 
     try {
       const accessToken = sessionStorage.getItem('accessToken');
-      const response = await axios.post('http://8000/files/upload', formData, {
+      const response = await axios.post(`${Backend_URL}/files/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${accessToken}`,
@@ -33,7 +37,15 @@ const UploadForm = () => {
 
   return (
     <form onSubmit={handleUpload} className="max-w-md mx-auto mt-10 p-4 bg-white shadow-md rounded-md">
-      <h2 className="text-2xl font-bold mb-4">Upload File</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Upload File</h1>
+        <button
+          onClick={logout}
+          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
+        >
+          Logout
+        </button>
+      </div>
       <div className="mb-4">
         <label className="block text-sm font-bold mb-2">Select File</label>
         <input
