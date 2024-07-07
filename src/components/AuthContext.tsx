@@ -18,48 +18,74 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
   const [backendTokens, setBackendTokens] = useState<any>(null);
-  const navigate = useNavigate(); // Assurez-vous que useNavigate est utilisé à l'intérieur de BrowserRouter
+  const navigate = useNavigate(); // Assurez que useNavigate est utilisé à l'intérieur de BrowserRouter
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     try {
-      const res = await axios.post(`${Backend_URL}/auth/login`, { email, password });
-      setUser(res.data.user);
-      setBackendTokens(res.data.backendTokens);
-      sessionStorage.setItem('backendTokens', JSON.stringify(res.data.backendTokens));
-      navigate('/upload');
+      const response = await axios.post(`${Backend_URL}/auth/login`, { email, password });
+      if (response.status === 200) {
+        setUser(response.data.user);
+        setBackendTokens(response.data.backendTokens);
+        sessionStorage.setItem('backendTokens', JSON.stringify(response.data.backendTokens));
+        navigate('/upload');
+      } else {
+        console.error('Login failed with status:', response.status);
+      }
     } catch (error) {
-      console.error('Login error:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Login error:', error.response?.data);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
     }
-  };
+  }, [navigate]);
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = useCallback(async (name: string, email: string, password: string) => {
     try {
-      const res = await axios.post(`${Backend_URL}/auth/register`, { name, email, password });
-      navigate('/login');
+      const response = await axios.post(`${Backend_URL}/auth/register`, { name, email, password });
+      if (response.status === 201) {
+        console.log("User Registered!");
+        navigate('/login');
+      } else {
+        console.error('Registration failed with status:', response.status);
+      }
     } catch (error) {
-      console.error('Registration error:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Registration error:', error.response?.data);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
     }
-  };
+  }, [navigate]);
 
   const logout = useCallback(() => {
     setUser(null);
     setBackendTokens(null);
     sessionStorage.removeItem('backendTokens');
-    navigate('/login'); // Utilisation de navigate à l'intérieur de votre AuthProvider
+    navigate('/login'); // Utilisation de navigate à l'intérieur de AuthProvider
   }, [navigate]);
 
   const refreshToken = useCallback(async () => {
     try {
       const tokens = JSON.parse(sessionStorage.getItem('backendTokens')!);
-      const res = await axios.post(`${Backend_URL}/auth/refresh`, null, {
+      const response = await axios.post(`${Backend_URL}/auth/refresh`, null, {
         headers: {
           authorization: `Refresh ${tokens.refreshToken}`,
         },
       });
-      setBackendTokens(res.data);
-      sessionStorage.setItem('backendTokens', JSON.stringify(res.data));
+      if (response.status === 200) {
+        setBackendTokens(response.data);
+        sessionStorage.setItem('backendTokens', JSON.stringify(response.data));
+      } else {
+        console.error('Refresh token failed with status:', response.status);
+        logout();
+      }
     } catch (error) {
-      console.error('Refresh token error:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Refresh token error:', error.response?.data);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
       logout();
     }
   }, [logout]);

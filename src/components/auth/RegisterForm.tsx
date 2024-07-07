@@ -9,11 +9,7 @@ const RegisterForm = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await register(name, email, password);
-    } catch (error) {
-      console.error('Registration error:', error);
-    }
+    await register(name, email, password);
   };
 
   return (
@@ -26,6 +22,7 @@ const RegisterForm = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full px-3 py-2 border rounded"
+          required
         />
       </div>
       <div className="mb-4">
@@ -35,6 +32,7 @@ const RegisterForm = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-3 py-2 border rounded"
+          required
         />
       </div>
       <div className="mb-4">
@@ -44,6 +42,7 @@ const RegisterForm = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full px-3 py-2 border rounded"
+          required
         />
       </div>
       <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-700">Register</button>
